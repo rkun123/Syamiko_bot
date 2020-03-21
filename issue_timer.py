@@ -38,7 +38,7 @@ class IssueTimer:
              
         self.timer_list = [timer for timer in self.timer_list if not timer in out_time_list]
 
-        for timer in self.timer_list:
+        for timer in out_time_list:
             self.callback(timer)
 
 
