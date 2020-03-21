@@ -7,6 +7,9 @@ class IssueTimer:
         self.timer_list = timer_list
         self.output_list = []
 
+    def set_callback(self, callback):
+        self.callback = callback
+
     def add_time(self,timer):
         if isinstance(timer, list):
             for t in timer:
@@ -35,6 +38,8 @@ class IssueTimer:
              
         self.timer_list = [timer for timer in self.timer_list if not timer in out_time_list]
 
+        for timer in self.timer_list:
+            self.callback(timer)
 
 
 if __name__ == "__main__":
@@ -68,7 +73,14 @@ if __name__ == "__main__":
       },
     ]
 
+    def timer_expired(_timer):
+        print("Callback: ")
+        print(_timer)
+
     issue_timer = IssueTimer(test_list)
+    
+    issue_timer.set_callback(timer_expired)
+
     t = threading.Thread(target=issue_timer.check_time())
     t.start()
     
