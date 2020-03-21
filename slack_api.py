@@ -33,8 +33,15 @@ class Slack:
                 self.interactive_message)
 
     def post_issue_button(self, channel_id):
+        """
+        Issue追加ボタンを投稿するメソッド
+        Parameters
+        ----------
+        channel_id : string
+            送信先のチャンネルID
+        """
         self.client.chat_postMessage(
-                channel="#test",
+                channel=channel_id,
                 blocks=[
                     {
                         "type": "section",
