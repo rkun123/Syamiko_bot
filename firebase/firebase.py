@@ -33,7 +33,7 @@ class FireBase:
         return self.db.collection(self.team_name).document(u'users')
 
     def get_issue(self, num):
-        return self.get_issues_ref().get().to_dict()[num]
+        return self.get_issues_ref().get().to_dict()[str(num)]
 
     def get_user(self, slack_id):
         return self.get_users_ref().get().to_dict()[slack_id]
