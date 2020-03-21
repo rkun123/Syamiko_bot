@@ -21,8 +21,12 @@ class FireBase:
                 u'slack_team_id': slack_team_id,
                 u'github_repository': github_repository,
             })
-            collection.document(u'users').set({})
-            collection.document(u'issues').set({})
+            collection.document(u'users').set({
+
+            })
+            collection.document(u'issues').set({
+
+            })
 
     def get_issues_ref(self, slack_team_id):
         return self.db.collection(slack_team_id).document(u'issues')
@@ -39,6 +43,9 @@ class FireBase:
     def add_issue(self, slack_team_id, issue_num, title, description, limited_sec, assignee=[]):
         issues_ref = self.get_issues_ref(slack_team_id)
         issues = issues_ref.get().to_dict()
+
+        if issues == None:
+            issues = {}
 
         new_issue = {
             u'issue_num': issue_num,
@@ -62,6 +69,10 @@ class FireBase:
     def add_user(self, slack_team_id, slack_user_id, github_user_id):
         users_ref = self.get_users_ref(slack_team_id)
         users = users_ref.get().to_dict()
+        
+        if users == None:
+            users = {}
+
         new_user = {
             u'slack_user_id': slack_user_id,
             u'github_user_id': github_user_id,
@@ -98,7 +109,7 @@ class FireBase:
         issues_ref.set(issues)
         
 def main():
-    firebase = FireBase(path=u'testAccount.json')
+    firebase = FireBase(path=u'firebaseCredentials.json')
     
     print(firebase.add_channel(slack_team_id=u'slack_team_id', github_repository=u'github_repository'))
     
