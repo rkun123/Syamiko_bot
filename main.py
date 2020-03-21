@@ -32,43 +32,50 @@ if __name__ == "__main__":
         SLACKBOT_API_TOKEN,
         SLACKBOT_API_SIGNING_SECRET,
         flask,
-        3000
+        3000,
+        None
     )
 
-    def addIssue(team_id, title, description, limited_time, selected_users):
+    def add_issue(team_id, title, description, limited_time, selected_users):
         """
         Issue追加
         """
-        github.create_issue()
-        print(title)
-        print(description)
-        print(selected_users)
+        repo = firebase.get_repo(team_id)
+        print(repo)
+        github.create_issue(repo, title, description, selected_users)
 
-    slack.setAddIssueCallback(addIssue)
+        return "OK", 200
 
-    def addChannel(team_id, repo):
+    slack.setAddIssueCallback(add_issue)
+
+    def add_channel(team_id, repo):
         """
         Channel追加
         """
         firebase.add_channel(team_id, repo)
+        
+        return None, 200
 
-    slack.setAddChannelCallback(addIssue)
+    slack.setAddChannelCallback(add_channel)
 
-    def assignUser(team_id, assignee, issue_num):
+    def assign_user(team_id, assignee, issue_num):
         """
         ユーザーアサイン
         """
-        github.get_issue(
+        repo = firebase.get_repo(team_id)
+        github.get_issue(repo, issue_num).add_to_assignees(assignee)
+        firebase.assign_user(team_id, assignee, issue_num)
 
-    slack.setAssignUserCallback(addIssue)
+    slack.setAssignUserCallback(assign_user)
 
-    def closeIssue(team_id, issue_num):
+    def close_issue(team_id, issue_num):
         """
         Issueクローズ
         """
+        repo = firebase.get_repo(team_id)
         github.close_issue(repo, issue_num)
         
 
-    slack.setAssignUserCallback(addIssue)
+    slack.setAssignUserCallback(close_issue)
 
     slack.run()

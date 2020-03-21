@@ -40,6 +40,13 @@ class FireBase:
     def get_user(self, slack_team_id, slack_user_id):
         return self.get_users_ref(slack_team_id).get().to_dict()[slack_user_id]
 
+    def get_repo(self, slack_team_id):
+        summary = self.db.collection(slack_team_id).document(u'summary').get().to_dict()
+        if summary is None:
+            return None
+        return summary['github_repository']
+        
+
     def add_issue(self, slack_team_id, issue_num, title, description, limited_sec, assignee=[]):
         issues_ref = self.get_issues_ref(slack_team_id)
         issues = issues_ref.get().to_dict()
@@ -127,6 +134,8 @@ def main():
     print(firebase.assign_user(slack_team_id=u'slack_team_id', assignee=[u'slack_user_id'], issue_num=2))
     print(firebase.close_issue(slack_team_id=u'slack_team_id', issue_num=1))
     print(firebase.close_issue(slack_team_id=u'slack_team_id', issue_num=2))
+
+    print("Repo_name: " + firebase.get_repo(slack_team_id=u'slack_team_id'))
 
 if __name__ == '__main__':
     main()
