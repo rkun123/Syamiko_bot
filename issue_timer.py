@@ -5,22 +5,33 @@ import datetime
 class IssueTimer:
     def __init__(self,timer_list):
         self.timer_list = timer_list
+        self.output_list = []
 
     def add_time(self,timer):
         self.timer_list.append(timer)
 
+    def pop_output(self):
+        if self.output_list:
+            output = self.output_list.copy()
+            self.output_list.clear()
+        else:
+            output = None
+
+        return output
+        
     def check_time(self):
         t = threading.Timer(1, self.check_time)
         t.start()
         
         current_time = datetime.datetime.now()
-        print(current_time)
 
-        out_time_list= [time for time in self.timer_list if time["expired_at"] <= current_time]
+        out_time_list = [time for time in self.timer_list if time["expired_at"] <= current_time]
+        if out_time_list:
+            self.output_list += out_time_list
+             
         self.timer_list = [timer for timer in self.timer_list if not timer in out_time_list]
 
-        print(len(self.timer_list))
-        #print("timer_list : {}".format(self.timer_list))
+
 
 if __name__ == "__main__":
     start_time = datetime.datetime.now()
@@ -56,3 +67,17 @@ if __name__ == "__main__":
     issue_timer = IssueTimer(test_list)
     t = threading.Thread(target=issue_timer.check_time())
     t.start()
+    
+    print(issue_timer.timer_list)
+    issue_timer.add_time({
+        "team": "A",
+        "issue": 3,
+        "expired_at": start_time + datetime.timedelta(seconds=7)
+      })
+    print(issue_timer.timer_list)
+
+    time.sleep(5)
+    print("pop_output")
+    print(issue_timer.pop_output())
+    print(issue_timer.pop_output())
+
