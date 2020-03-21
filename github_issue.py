@@ -21,15 +21,16 @@ class Issue:
             print("該当するIssue番号は存在しません。")
         return issue
 
-    def create_issue(self,repo_url,title,body,assignee=None):
+    def create_issue(self,repo_url,title,body,assignees=None):
         g = Github(self.token)
         repo = g.get_repo(repo_url)
         new_issue = None
 
-        if assignee is None:
-            new_issue = repo.create_issue(title,body)
-        else:
-            new_issue = repo.create_issue(title,body,assignee)
+        new_issue = repo.create_issue(title,body)
+
+        if assignees:
+            for assignee in assignees:
+                new_issue.add_to_assignees(assignee)
         print("new issue number is {}".format(new_issue.number))
 
         return new_issue
@@ -55,7 +56,7 @@ if __name__ == "__main__":
 
     GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
 
-    repo_url = "y-shoji/test_repo"
+    repo_url = "YuichirouSeitoku/TestRepository"
     issue_num = 1
 
     g = Issue(GITHUB_ACCESS_TOKEN)
@@ -63,7 +64,8 @@ if __name__ == "__main__":
 
     title = "test"
     body = "テストの文章です"
-    assignee = "y-shoji"
+    assignees = ["YuichirouSeitoku","rkun123","Futaba-Kosuke"]
+    assignees = ["YuichirouSeitoku"]
 
-    g.create_issue(repo_url,title,body,assignee)
+    g.create_issue(repo_url,title,body,assignees)
     g.close_issue(repo_url,issue_num)
