@@ -7,7 +7,7 @@ class IssueTimer:
         self.timer_list = timer_list
 
     def add_time(self,timer):
-        self.timer_list.push(timer)
+        self.timer_list.append(timer)
 
     def check_time(self):
         t = threading.Timer(1, self.check_time)
@@ -15,7 +15,7 @@ class IssueTimer:
         
         current_time = datetime.datetime.now()
         print(current_time)
-        
+
         out_time_list= [time for time in self.timer_list if time["expired_at"] <= current_time]
         self.timer_list = [timer for timer in self.timer_list if not timer in out_time_list]
 
