@@ -40,7 +40,7 @@ class Issue:
         open_issues = repo.get_issues(state='open')
         close_issue = self.get_issue(repo_url, issue_num)
 
-        if close_issue and close_issue in [issue for issue in open_issues]:
+        if close_issue and close_issue in open_issues:
             close_issue.edit(state='closed')
             print("close issue number is {}".format(close_issue.number))
         else:
