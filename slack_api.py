@@ -118,31 +118,8 @@ class Slack:
                             "type": "input",
                             "block_id": "member_block",
                             "element": {
-                                "type": "multi_static_select",
+                                "type": "multi_users_select",
                                 "action_id": "member",
-                                "options": [
-                                    {
-                                        "text": {
-                                            "type": "plain_text",
-                                            "text": "User 1"
-                                        },
-                                        "value": "user01"
-                                    },
-                                    {
-                                        "text": {
-                                            "type": "plain_text",
-                                            "text": "User 2"
-                                        },
-                                        "value": "user02"
-                                    },
-                                    {
-                                        "text": {
-                                            "type": "plain_text",
-                                            "text": "User 3"
-                                        },
-                                        "value": "user03"
-                                    }
-                                ],
                                 "placeholder": {
                                     "type": "plain_text",
                                     "text": "Select channels",
@@ -175,9 +152,9 @@ class Slack:
             values = req["view"]["state"]["values"]
             print("Title: {}".format(values["title_block"]["title"]["value"]))
             print("Description: {}".format(values["description_block"]["description"]["value"]))
-            selected_options = values["member_block"]["member"]["selected_options"]
-            for idx, option in enumerate(selected_options):
-                print("{}: {}".format(str(idx), option["value"]))
+            selected_users = values["member_block"]["member"]["selected_users"]
+            for idx, option in enumerate(selected_users):
+                print("{}: {}".format(str(idx), option))
 
         else:
             print("Invalid interactive_message")
