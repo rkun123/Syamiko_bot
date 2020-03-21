@@ -128,6 +128,66 @@ class Slack:
                     },
                     {
                         "type": "input",
+                        "block_id": "limited_time_block",
+                        "element": {
+                            "action_id": "limited_time",
+                            "type": "static_select",
+                            "placeholder": {
+                                "type": "plain_text",
+                                "text": "Select your favorites",
+                                "emoji": True
+                            },
+                            "options": [
+                                {
+                                    "text": {
+                                        "type": "plain_text",
+                                        "text": "10分",
+                                        "emoji": True
+                                    },
+                                    "value": "600"
+                                },
+                                {
+                                    "text": {
+                                        "type": "plain_text",
+                                        "text": "20分",
+                                        "emoji": True
+                                    },
+                                    "value": "1200"
+                                },
+                                {
+                                    "text": {
+                                        "type": "plain_text",
+                                        "text": "30分",
+                                        "emoji": True
+                                    },
+                                    "value": "1800"
+                                },
+                                {
+                                    "text": {
+                                        "type": "plain_text",
+                                        "text": "1時間",
+                                        "emoji": True
+                                    },
+                                    "value": "6000"
+                                },
+                                {
+                                    "text": {
+                                        "type": "plain_text",
+                                        "text": "2時間",
+                                        "emoji": True
+                                    },
+                                    "value": "12000"
+                                },
+                            ]
+                        },
+                        "label": {
+                            "type": "plain_text",
+                            "text": "制限時間",
+                            "emoji": True
+                        }
+                    },
+                    {
+                        "type": "input",
                         "block_id": "member_block",
                         "element": {
                             "type": "multi_users_select",
@@ -175,8 +235,9 @@ class Slack:
             values = req["view"]["state"]["values"]
             title = values["title_block"]["title"]["value"]
             description = values["description_block"]["description"]["value"]
+            limited_time = values["limited_time_block"]["limited_time"]["selected_option"]["value"]
             selected_users = values["member_block"]["member"]["selected_users"]
-            self.callback(team_id, title, description, selected_users)
+            self.callback(team_id, title, description, limited_time, selected_users)
 
         else:
             print("Invalid interactive_message")
@@ -196,7 +257,7 @@ if __name__ == "__main__":
     TOKEN = os.getenv("SLACKBOT_API_TOKEN")
     SIGNING_SECRET = os.getenv("SLACKBOT_API_SIGNING_SECRET")
 
-    def callback(team_id, title, description, selected_users):
+    def callback(team_id, title, description, limited_time,selected_users):
         """
         Issue追加時の情報を受け取る関数
         Parameters
@@ -213,6 +274,7 @@ if __name__ == "__main__":
         print(team_id)
         print(title)
         print(description)
+        print(limited_time)
         print(selected_users)
 
     API = Slack(TOKEN, SIGNING_SECRET, flask, 3000, callback)
