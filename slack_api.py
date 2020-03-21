@@ -21,16 +21,15 @@ class Slack:
             channel='#test',
             text="参加!")
 
-        self.subscrive_events()
+        self.subscribe_events()
 
-    def subscrive_events(self):
+    def subscribe_events(self):
         # app_mention
         app_mention_deco = self.events_adapter.on("app_mention")
         app_mention_deco(self.app_mention)
 
     def app_mention(self, e):
-        e["event"]
-        print("aaa")
+        print("User: " + e["event"]["user"])
 
     def run(self):
         self.flask.run(port=3000)
