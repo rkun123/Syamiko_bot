@@ -19,10 +19,6 @@ class Slack:
                 flask)
         self.events_adapter = events_adapter
 
-        client.chat_postMessage(
-            channel='#test',
-            text="参加!")
-
         self.client = client
 
         self.subscribe_events()
@@ -33,9 +29,10 @@ class Slack:
         app_mention_deco(self.app_mention)
         
         # interactive message
-        self.flask.route("/slack/interactives", methods=["POST"])(self.interactive_message)
+        self.flask.route("/slack/interactives", methods=["POST"])(
+                self.interactive_message)
 
-    def post_issue_button(self):
+    def post_issue_button(self, channel_id):
         self.client.chat_postMessage(
                 channel="#test",
                 blocks=[
@@ -61,7 +58,6 @@ class Slack:
 
     def show_issue_modal(self, trigger_id):
         self.client.views_open(
-                channel="#test",
                 trigger_id=trigger_id,
                 view={
                     "type": "modal",
@@ -138,10 +134,9 @@ class Slack:
             )
 
     def app_mention(self, e):
-        print(vars(e))
         print("User: " + e["event"]["user"])
         if "modal" in e["event"]["text"]:
-            self.show_issue_modal(e["event_id"])
+            self.post_issue_button(e["event"]["channel"])
 
     def interactive_message(self):
         req = json.loads(request.form["payload"])
@@ -149,12 +144,12 @@ class Slack:
         if req["type"] == "block_actions":
             self.show_issue_modal(req["trigger_id"])
         elif req["type"] == "view_submission":
-            print(dict(req))
+            team_id = req["view"]["team_id"]
             values = req["view"]["state"]["values"]
-            title = values["title_block"]["title"]["value"])
-            description = values["description_block"]["description"]["value"])
+            title = values["title_block"]["title"]["value"]
+            description = values["description_block"]["description"]["value"]
             selected_users = values["member_block"]["member"]["selected_users"]
-            self.callback(title, description, selected_users)
+            self.callback(team_id, title, description, selected_users)
 
         else:
             print("Invalid interactive_message")
@@ -171,7 +166,12 @@ if __name__ == "__main__":
     TOKEN = os.getenv("SLACKBOT_API_TOKEN")
     SIGNING_SECRET = os.getenv("SLACKBOT_API_SIGNING_SECRET")
 
-    s = Slack(TOKEN, SIGNING_SECRET, f, 3000)
-    s.post_issue_button()
+    def callback(team_id, title, description, selected_users):
+        print(team_id)
+        print(title)
+        print(description)
+        print(selected_users)
+
+    s = Slack(TOKEN, SIGNING_SECRET, f, 3000, callback)
 
     s.run()
