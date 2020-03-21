@@ -19,10 +19,6 @@ class Slack:
                 flask)
         self.events_adapter = events_adapter
 
-        client.chat_postMessage(
-            channel='#test',
-            text="参加!")
-
         self.client = client
 
         self.subscribe_events()
@@ -33,11 +29,19 @@ class Slack:
         app_mention_deco(self.app_mention)
         
         # interactive message
-        self.flask.route("/slack/interactives", methods=["POST"])(self.interactive_message)
+        self.flask.route("/slack/interactives", methods=["POST"])(
+                self.interactive_message)
 
-    def post_issue_button(self):
+    def post_issue_button(self, channel_id):
+        """
+        Issue追加ボタンを投稿するメソッド
+        Parameters
+        ----------
+        channel_id : string
+            送信先のチャンネルID
+        """
         self.client.chat_postMessage(
-                channel="#test",
+                channel=channel_id,
                 blocks=[
                     {
                         "type": "section",
@@ -60,101 +64,119 @@ class Slack:
             )
 
     def show_issue_modal(self, trigger_id):
-        self.client.views_open(
-                channel="#test",
-                trigger_id=trigger_id,
-                view={
-                    "type": "modal",
-                    "title": {
-                            "type": "plain_text",
-                            "text": "My App",
-                            "emoji": True
-                    },
-                    "submit": {
-                            "type": "plain_text",
-                            "text": "Submit",
-                            "emoji": True
-                    },
-                    "close": {
-                            "type": "plain_text",
-                            "text": "Cancel",
-                            "emoji": True
-                    },
-                    "blocks": [
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": "*Issueを作成*"
-                            }
-                        },
-                        {
-                            "type": "input",
-                            "block_id": "title_block",
-                            "element": {
-                                "action_id": "title",
-                                "type": "plain_text_input"
-                            },
-                            "label": {
-                                "type": "plain_text",
-                                "text": "タイトル",
-                                "emoji": True
-                            }
-                        },
-                        {
-                            "type": "input",
-                            "block_id": "description_block",
-                            "element": {
-                                "action_id": "description",
-                                "type": "plain_text_input",
-                                "multiline": True
-                            },
-                            "label": {
-                                "type": "plain_text",
-                                "text": "説明",
-                                "emoji": True
-                            }
-                        },
-                        {
-                            "type": "input",
-                            "block_id": "member_block",
-                            "element": {
-                                "type": "multi_users_select",
-                                "action_id": "member",
-                                "placeholder": {
-                                    "type": "plain_text",
-                                    "text": "Select channels",
-                                    "emoji": True
-                                }
-                            },
-                            "label": {
-                                "type": "plain_text",
-                                "text": "担当者",
-                                "emoji": True
-                            }
-                        }
-                    ]
-                }
-            )
+        """
+        Issue追加する用のModalを表示するメソッド
 
-    def app_mention(self, e):
-        print(vars(e))
-        print("User: " + e["event"]["user"])
-        if "modal" in e["event"]["text"]:
-            self.show_issue_modal(e["event_id"])
+        Parameters
+        ----------
+        trigger_id : string
+            Modalを送信する際に必要なtrigger_id
+        """
+        self.client.views_open(
+            trigger_id=trigger_id,
+            view={
+                "type": "modal",
+                "title": {
+                    "type": "plain_text",
+                    "text": "My App",
+                    "emoji": True
+                },
+                "submit": {
+                    "type": "plain_text",
+                    "text": "Submit",
+                    "emoji": True
+                },
+                "close": {
+                    "type": "plain_text",
+                    "text": "Cancel",
+                    "emoji": True
+                },
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Issueを作成*"
+                        }
+                    },
+                    {
+                        "type": "input",
+                        "block_id": "title_block",
+                        "element": {
+                            "action_id": "title",
+                            "type": "plain_text_input"
+                        },
+                        "label": {
+                            "type": "plain_text",
+                            "text": "タイトル",
+                            "emoji": True
+                        }
+                    },
+                    {
+                        "type": "input",
+                        "block_id": "description_block",
+                        "element": {
+                            "action_id": "description",
+                            "type": "plain_text_input",
+                            "multiline": True
+                        },
+                        "label": {
+                            "type": "plain_text",
+                            "text": "説明",
+                            "emoji": True
+                        }
+                    },
+                    {
+                        "type": "input",
+                        "block_id": "member_block",
+                        "element": {
+                            "type": "multi_users_select",
+                            "action_id": "member",
+                            "placeholder": {
+                                "type": "plain_text",
+                                "text": "Select channels",
+                                "emoji": True
+                            }
+                        },
+                        "label": {
+                            "type": "plain_text",
+                            "text": "担当者",
+                            "emoji": True
+                        }
+                    }
+                ]
+            }
+        )
+
+    def app_mention(self, event):
+        """
+        @syamikoされた際に呼ばれるイベントハンドラメソッド
+
+        Parameters
+        ----------
+        e : object
+            イベントオブジェクト
+        """
+
+        print("User: " + event["event"]["user"])
+        if "modal" in event["event"]["text"]:
+            self.post_issue_button(event["event"]["channel"])
 
     def interactive_message(self):
+        """
+        Button，Modalが返すblock_actions, view_submissionを受けた際に呼ばれるイベントハンドラ
+        """
         req = json.loads(request.form["payload"])
         print(dict(req))
         if req["type"] == "block_actions":
             self.show_issue_modal(req["trigger_id"])
         elif req["type"] == "view_submission":
-            print(dict(req))
+            team_id = req["view"]["team_id"]
             values = req["view"]["state"]["values"]
-            title = values["title_block"]["title"]["value"])
-            description = values["description_block"]["description"]["value"])
+            title = values["title_block"]["title"]["value"]
+            description = values["description_block"]["description"]["value"]
             selected_users = values["member_block"]["member"]["selected_users"]
-            self.callback(title, description, selected_users)
+            self.callback(team_id, title, description, selected_users)
 
         else:
             print("Invalid interactive_message")
@@ -162,16 +184,37 @@ class Slack:
         return "", 200
 
     def run(self):
+        """
+        EventsAPI用のFlaskをListenする際に呼ぶメソッド
+        """
         self.flask.run(port=3000)
 
 
 if __name__ == "__main__":
-    f = Flask(__name__)
+    flask = Flask(__name__)
 
     TOKEN = os.getenv("SLACKBOT_API_TOKEN")
     SIGNING_SECRET = os.getenv("SLACKBOT_API_SIGNING_SECRET")
 
-    s = Slack(TOKEN, SIGNING_SECRET, f, 3000)
-    s.post_issue_button()
+    def callback(team_id, title, description, selected_users):
+        """
+        Issue追加時の情報を受け取る関数
+        Parameters
+        ---------
+        team_id : string
+            チームのID
+        title : string
+            Issueのタイトル
+        description : string
+            Issueの説明文
+        selected_users : list
+            IssueにassignされたユーザーIDの文字列のリスト
+        """
+        print(team_id)
+        print(title)
+        print(description)
+        print(selected_users)
 
-    s.run()
+    API = Slack(TOKEN, SIGNING_SECRET, flask, 3000, callback)
+
+    API.run()
