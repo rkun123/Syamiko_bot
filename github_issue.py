@@ -34,7 +34,13 @@ class Issue:
         print("new issue number is {}".format(new_issue.number))
 
         return new_issue
-    
+    def get_open_list(self, repo_url):
+        g = Github(self.token)
+        repo = g.get_repo(repo_url)
+        open_issues = repo.get_issues(state='open')
+
+        return open_issues
+
     def close_issue(self,repo_url,issue_num):
         g = Github(self.token)
         repo = g.get_repo(repo_url)
