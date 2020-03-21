@@ -55,6 +55,31 @@ class Issue:
         
         return close_issue
 
+    def get_commit_info(self, repo_url, issue_num):
+        g = Github(self.token)
+        repo = g.get_repo(repo_url)
+        issue = self.get_issue(repo_url, issue_num)
+        commit_info = {}
+        event_ids = [id.id for id in issue.get_events()]
+        for event_id in event_ids:
+            issue_event = repo.get_issues_event(event_id)
+            if not issue_event.commit_id:
+                continue
+            commit_id = issue_event.commit_id
+            author = repo.get_commit(commit_id).author.login
+
+            files = repo.get_commit(commit_id).files
+            progress = 0
+            for file in files:
+                progress += file.additions+file.deletions+file.changes
+
+            if author in commit_info:
+                commit_info[author] += progress
+            else:
+                commit_info[author] = progress
+        
+        return commit_info
+
 if __name__ == "__main__":
 
     dotenv_path = join(dirname(__file__), ".env")
@@ -73,5 +98,8 @@ if __name__ == "__main__":
     assignees = ["YuichirouSeitoku","rkun123","Futaba-Kosuke"]
     assignees = ["YuichirouSeitoku"]
 
-    g.create_issue(repo_url,title,body,assignees)
-    g.close_issue(repo_url,issue_num)
+    # g.create_issue(repo_url,title,body,assignees)
+    # g.close_issue(repo_url,issue_num)
+    commit_info = g.get_commit_info(repo_url,issue_num)
+
+    print(commit_info)
