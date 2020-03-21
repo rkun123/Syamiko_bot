@@ -6,11 +6,12 @@ import json
 
 
 class Slack:
-    def __init__(self, token, signing_secret, flask, port):
+    def __init__(self, token, signing_secret, flask, port, callback):
         self.token = token
         self.signing_secret = signing_secret
-        self.port = port
         self.flask = flask
+        self.port = port
+        self.callback = callback
         client = slack.WebClient(token=token)
         events_adapter = SlackEventAdapter(
                 signing_secret,
@@ -150,11 +151,10 @@ class Slack:
         elif req["type"] == "view_submission":
             print(dict(req))
             values = req["view"]["state"]["values"]
-            print("Title: {}".format(values["title_block"]["title"]["value"]))
-            print("Description: {}".format(values["description_block"]["description"]["value"]))
+            title = values["title_block"]["title"]["value"])
+            description = values["description_block"]["description"]["value"])
             selected_users = values["member_block"]["member"]["selected_users"]
-            for idx, option in enumerate(selected_users):
-                print("{}: {}".format(str(idx), option))
+            self.callback(title, description, selected_users)
 
         else:
             print("Invalid interactive_message")
