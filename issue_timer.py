@@ -8,7 +8,11 @@ class IssueTimer:
         self.output_list = []
 
     def add_time(self,timer):
-        self.timer_list.append(timer)
+        if isinstance(timer, list):
+            for t in timer:
+                self.timer_list.append(t)
+        else:    
+            self.timer_list.append(timer)
 
     def pop_output(self):
         if self.output_list:
