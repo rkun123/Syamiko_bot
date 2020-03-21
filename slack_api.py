@@ -3,7 +3,7 @@ import slack
 from flask import Flask, request
 from slackeventsapi import SlackEventAdapter
 import json
-
+import slack_ui
 
 class Slack:
     def __init__(self, token, signing_secret, flask, port, callback):
@@ -42,28 +42,16 @@ class Slack:
         """
         self.client.chat_postMessage(
                 channel=channel_id,
-                blocks=[
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text":
-                            "Issueを追加する"
-                            },
-                        "accessory": {
-                            "type": "button",
-                            "text": {
-                                "type": "plain_text",
-                                "text": "Issue追加",
-                                "emoji": True
-                            },
-                            "value": "click_me_123"
-                        }
-                    }
-                ]
+                blocks=slack_ui.OPEN_MODAL_BUTTONS
             )
+        
+    def show_add_channel_modal(self, trigger_id):
+        self.client.views_open(
+            trigger_id=trigger_id,
+            view=slack_ui.ADD_CHANNEL_MODAL
+        )
 
-    def show_issue_modal(self, trigger_id):
+    def show_add_issue_modal(self, trigger_id):
         """
         Issue追加する用のModalを表示するメソッド
 
@@ -74,138 +62,19 @@ class Slack:
         """
         self.client.views_open(
             trigger_id=trigger_id,
-            view={
-                "type": "modal",
-                "title": {
-                    "type": "plain_text",
-                    "text": "My App",
-                    "emoji": True
-                },
-                "submit": {
-                    "type": "plain_text",
-                    "text": "Submit",
-                    "emoji": True
-                },
-                "close": {
-                    "type": "plain_text",
-                    "text": "Cancel",
-                    "emoji": True
-                },
-                "blocks": [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": "*Issueを作成*"
-                        }
-                    },
-                    {
-                        "type": "input",
-                        "block_id": "title_block",
-                        "element": {
-                            "action_id": "title",
-                            "type": "plain_text_input"
-                        },
-                        "label": {
-                            "type": "plain_text",
-                            "text": "タイトル",
-                            "emoji": True
-                        }
-                    },
-                    {
-                        "type": "input",
-                        "block_id": "description_block",
-                        "element": {
-                            "action_id": "description",
-                            "type": "plain_text_input",
-                            "multiline": True
-                        },
-                        "label": {
-                            "type": "plain_text",
-                            "text": "説明",
-                            "emoji": True
-                        }
-                    },
-                    {
-                        "type": "input",
-                        "block_id": "limited_time_block",
-                        "element": {
-                            "action_id": "limited_time",
-                            "type": "static_select",
-                            "placeholder": {
-                                "type": "plain_text",
-                                "text": "Select your favorites",
-                                "emoji": True
-                            },
-                            "options": [
-                                {
-                                    "text": {
-                                        "type": "plain_text",
-                                        "text": "10分",
-                                        "emoji": True
-                                    },
-                                    "value": "600"
-                                },
-                                {
-                                    "text": {
-                                        "type": "plain_text",
-                                        "text": "20分",
-                                        "emoji": True
-                                    },
-                                    "value": "1200"
-                                },
-                                {
-                                    "text": {
-                                        "type": "plain_text",
-                                        "text": "30分",
-                                        "emoji": True
-                                    },
-                                    "value": "1800"
-                                },
-                                {
-                                    "text": {
-                                        "type": "plain_text",
-                                        "text": "1時間",
-                                        "emoji": True
-                                    },
-                                    "value": "6000"
-                                },
-                                {
-                                    "text": {
-                                        "type": "plain_text",
-                                        "text": "2時間",
-                                        "emoji": True
-                                    },
-                                    "value": "12000"
-                                },
-                            ]
-                        },
-                        "label": {
-                            "type": "plain_text",
-                            "text": "制限時間",
-                            "emoji": True
-                        }
-                    },
-                    {
-                        "type": "input",
-                        "block_id": "member_block",
-                        "element": {
-                            "type": "multi_users_select",
-                            "action_id": "member",
-                            "placeholder": {
-                                "type": "plain_text",
-                                "text": "Select channels",
-                                "emoji": True
-                            }
-                        },
-                        "label": {
-                            "type": "plain_text",
-                            "text": "担当者",
-                            "emoji": True
-                        }
-                    }
-                ]
-            }
+            view=slack_ui.ADD_ISSUE_MODAL
+        )
+    
+    def show_assign_user_modal(self, trigger_id):
+        self.client.views_open(
+            trigger_id=trigger_id,
+            view=slack_ui.ASSIGN_USER_MODAL
+        )
+
+    def show_close_issue_modal(self, trigger_id):
+        self.client.views_open(
+            trigger_id=trigger_id,
+            view=slack_ui.CLOSE_ISSUE_MODAL
         )
 
     def app_mention(self, event):
@@ -227,22 +96,72 @@ class Slack:
         Button，Modalが返すblock_actions, view_submissionを受けた際に呼ばれるイベントハンドラ
         """
         req = json.loads(request.form["payload"])
-        print(dict(req))
+        # print(dict(req))
         if req["type"] == "block_actions":
-            self.show_issue_modal(req["trigger_id"])
+            mode = req["actions"][0]["value"]
+            if mode == "Add Issue":
+                self.show_add_issue_modal(req["trigger_id"])
+            elif mode == "Add Channel":
+                self.show_add_channel_modal(req["trigger_id"])
+            elif mode == "Assign User":
+                self.show_assign_user_modal(req["trigger_id"])
+            elif mode == "Close Issue":
+                self.show_close_issue_modal(req["trigger_id"])
         elif req["type"] == "view_submission":
-            team_id = req["view"]["team_id"]
-            values = req["view"]["state"]["values"]
-            title = values["title_block"]["title"]["value"]
-            description = values["description_block"]["description"]["value"]
-            limited_time = values["limited_time_block"]["limited_time"]["selected_option"]["value"]
-            selected_users = values["member_block"]["member"]["selected_users"]
-            self.callback(team_id, title, description, limited_time, selected_users)
+
+            callback_id = req["view"]["callback_id"]
+            # print(req)
+
+            if callback_id == "ADD_ISSUE":
+                team_id = req["view"]["team_id"]
+                values = req["view"]["state"]["values"]
+                title = values["title_block"]["title"]["value"]
+                description = values["description_block"]["description"]["value"]
+                limited_time = values["limited_time_block"]["limited_time"]["selected_option"]["value"]
+                selected_users = values["member_block"]["member"]["selected_users"]
+                print(team_id, title, description,limited_time, selected_users)
+                return self.add_issue_callback(team_id=team_id, title=title, description=description, limited_time=limited_time, selected_users=selected_users)
+            elif callback_id == "ADD_CHANNEL":
+                team_id = req["view"]["team_id"]
+                repo = req["view"]["state"]["values"]["repo_block"]["repo"]["value"]
+                print(team_id, repo)
+                return self.add_channel_callback(team_id=team_id, repo=repo)
+            elif callback_id == "ASSIGN_USER":
+                team_id = req["view"]["team_id"]
+                issue_num = req["view"]["state"]["values"]["issue_block"]["issue"]["selected_option"]["value"]
+                assignee = req["view"]["state"]["values"]["assignee_block"]["assignee"]["selected_users"]
+                print(team_id, assignee, issue_num)
+                return self.assign_user_callback(team_id=team_id, assignee=assignee, issue_num=issue_num)
+            elif callback_id == "CLOSE_ISSUE":
+                team_id = req["view"]["team_id"]
+                issue_num = req["view"]["state"]["values"]["issue_block"]["issue"]["selected_option"]["value"]
+                print(team_id, issue_num)
+                return self.close_issue_callback(team_id=team_id, issue_num=issue_num)
+
+            # team_id = req["view"]["team_id"]
+            # values = req["view"]["state"]["values"]
+            # title = values["title_block"]["title"]["value"]
+            # description = values["description_block"]["description"]["value"]
+            # limited_time = values["limited_time_block"]["limited_time"]["selected_option"]["value"]
+            # selected_users = values["member_block"]["member"]["selected_users"]
+            # self.callback(team_id, title, description, limited_time, selected_users)
 
         else:
             print("Invalid interactive_message")
 
         return "", 200
+
+    def setAddIssueCallback(self, add_issue):
+        self.add_issue_callback = add_issue
+
+    def setAddChannelCallback(self, addChannel):
+        self.add_channel_callback = addChannel
+
+    def setAssignUserCallback(self, assignUser):
+        self.assign_user_callback = assignUser
+
+    def setCloseIssueCallback(self, closeIssue):
+        self.close_issue_callback = closeIssue
 
     def run(self):
         """
