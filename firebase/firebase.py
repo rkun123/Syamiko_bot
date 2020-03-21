@@ -91,27 +91,4 @@ class FireBase:
         issues[str(issue_num)][u'closed_at'] = datetime.datetime.now()
 
         issues_ref.set(issues)
-
-path = u'testAccount.json'
-team_name = u'Team02'
-channel = {
-    u'signing_secret': u'signing_secret',
-    u'token': u'token',
-}
-repository = u'repository'
-
-firebase = FireBase(path, team_name, channel, repository)
-
-firebase.add_user('slack', 'github')
-firebase.add_issue(1, 'title', 'description', 100, None, [])
-firebase.assign_user('slack', 1)
-firebase.close_issue(1)
-
-# {
-#     u'number': str(number),
-#     u'title': title,
-#     u'description': description,
-#     u'assignee': assignee,
-#     u'limited_sec': limited_time,
-#     u'closed_at': closed_at,
-# }
+        
