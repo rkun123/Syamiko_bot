@@ -10,12 +10,17 @@ class IssueTimer:
         self.timer_list.push(timer)
 
     def check_time(self):
-        while True:
-            current_time = datetime.datetime.now()
-            for i,time in enumerate(self.timer_list):
-                if time["expired_at"] <= current_time:
-                    test = self.timer_list.pop(i)
-                    print(test)
+        t = threading.Timer(1, self.check_time)
+        t.start()
+        
+        current_time = datetime.datetime.now()
+        print(current_time)
+        
+        out_time_list= [time for time in self.timer_list if time["expired_at"] <= current_time]
+        self.timer_list = [timer for timer in self.timer_list if not timer in out_time_list]
+
+        print(len(self.timer_list))
+        #print("timer_list : {}".format(self.timer_list))
 
 if __name__ == "__main__":
     start_time = datetime.datetime.now()
@@ -48,7 +53,6 @@ if __name__ == "__main__":
       },
     ]
 
-    t = IssueTimer(test_list)
-    thread_1 = threading.Thread(target=t.check_time())
-    thread_2 = threading.Thread(target=t.check_time())
-    thread_1.start()
+    issue_timer = IssueTimer(test_list)
+    t = threading.Thread(target=issue_timer.check_time())
+    t.start()
