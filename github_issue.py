@@ -26,7 +26,7 @@ class Issue:
         repo = g.get_repo(repo_url)
         new_issue = None
 
-        if assignee = None:
+        if assignee is None:
             new_issue = repo.create_issue(title,body)
         else:
             new_issue = repo.create_issue(title,body,assignee)
