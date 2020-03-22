@@ -19,8 +19,6 @@ if __name__ == "__main__":
     SLACKBOT_API_TOKEN = os.environ.get("SLACKBOT_API_TOKEN")
     SLACKBOT_API_SIGNING_SECRET = os.environ.get("SLACKBOT_API_SIGNING_SECRET")
 
-    GITHUB_CLIENT_ID = os.environ.get("GITHUB_CLIENT_ID")
-    GITHUB_CLIENT_SECRET = os.environ.get("GITHUB_CLIENT_SECRET")
     GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
 
     FIREBASE_CREDENTIAL_PATH = os.environ.get("FIREBASE_CREDENTIAL_PATH")
@@ -35,7 +33,7 @@ if __name__ == "__main__":
     flask = Flask(__name__)
 
     # Generate github client
-    github = Issue(GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_ACCESS_TOKEN)
+    github = Issue(GITHUB_ACCESS_TOKEN)
     firebase = FireBase(join(dirname(__file__), FIREBASE_CREDENTIAL_PATH))
 
     # Generate slack client and run
@@ -65,7 +63,7 @@ if __name__ == "__main__":
         issue_timer.add_time({
             "team": team_id,
             "issue": issue_num,
-            "expired_at": datetime.datetime.now() + datetime.timedelta(seconds=limited_time)
+            "expired_at": datetime.datetime.now() + datetime.timedelta(seconds=int(limited_time))
             })
 
         return ('', 204)
@@ -93,13 +91,13 @@ if __name__ == "__main__":
         for i in github_users:
             github.get_issue(repo, issue_num).add_to_assignees(i)
         firebase.assign_user(team_id, assignee, issue_num)
-        return ('', 200)
+        return ('', 204)
 
     slack.setAssignUserCallback(assign_user)
 
     def connect_github(team_id, slack_user, github_user):
         firebase.add_user(team_id, slack_user, github_user)
-        return ('', 200)
+        return ('', 204)
 
     slack.setConnectGithubCallback(connect_github)
 
@@ -110,7 +108,7 @@ if __name__ == "__main__":
         repo = firebase.get_repo(team_id)
         github.close_issue(repo, issue_num)
         firebase.close_issue(team_id, issue_num)
-        return "OK", 200
+        return ('', 204)
         
 
     slack.setCloseIssueCallback(close_issue)

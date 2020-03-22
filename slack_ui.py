@@ -142,6 +142,14 @@ ADD_ISSUE_MODAL = {
                     {
                         "text": {
                             "type": "plain_text",
+                            "text": "10秒",
+                            "emoji": True
+                        },
+                        "value": "10"
+                    },
+                    {
+                        "text": {
+                            "type": "plain_text",
                             "text": "10分",
                             "emoji": True
                         },
