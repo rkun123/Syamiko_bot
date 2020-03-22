@@ -3,12 +3,8 @@ from dotenv import load_dotenv
 import os
 from os.path import join, dirname
 
-# GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
-
 # repo_url = "Futaba-Kosuke/test"
 # issue_num = 1
-
-# g = github_issue.Issue(GITHUB_ACCESS_TOKEN)
 
 # def get_issue_list():
 #     result = [
