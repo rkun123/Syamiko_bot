@@ -23,6 +23,19 @@ class Slack:
 
         self.subscribe_events()
 
+    def setGithub(self, github):
+        self.github = github
+        print([
+            {
+                "text": {
+                    "type": "plain_text",
+                    "text": '#' + str(i.number) + ' ' + str(i.title),
+                    "emoji": True
+                },
+                "value": str(i.number)
+            } for i in self.github.get_open_list('Futaba-Kosuke/test')
+        ])
+
     def subscribe_events(self):
         # app_mention
         app_mention_deco = self.events_adapter.on("app_mention")
@@ -66,15 +79,37 @@ class Slack:
         )
     
     def show_assign_user_modal(self, trigger_id):
+        view = slack_ui.ASSIGN_USER_MODAL
+        view["blocks"][0]["element"]["options"] = [
+            {
+                "text": {
+                    "type": "plain_text",
+                    "text": '#' + str(i.number) + ' ' + str(i.title),
+                    "emoji": True
+                },
+                "value": str(i.number)
+            } for i in self.github.get_open_list('Futaba-Kosuke/test')
+        ]
         self.client.views_open(
             trigger_id=trigger_id,
-            view=slack_ui.ASSIGN_USER_MODAL
+            view=view
         )
 
     def show_close_issue_modal(self, trigger_id):
+        view = slack_ui.CLOSE_ISSUE_MODAL
+        view["blocks"][0]["element"]["options"] = [
+            {
+                "text": {
+                    "type": "plain_text",
+                    "text": '#' + str(i.number) + ' ' + str(i.title),
+                    "emoji": True
+                },
+                "value": str(i.number)
+            } for i in self.github.get_open_list('Futaba-Kosuke/test')
+        ]
         self.client.views_open(
             trigger_id=trigger_id,
-            view=slack_ui.CLOSE_ISSUE_MODAL
+            view=view
         )
 
     def show_connect_github_user_modal(self, trigger_id):

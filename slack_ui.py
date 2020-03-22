@@ -1,31 +1,28 @@
-import github_issue
-from github import Github
+# import github_issue
 from dotenv import load_dotenv
 import os
 from os.path import join, dirname
 
-GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
+# GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
 
-repo_url = "Futaba-Kosuke/test"
-issue_num = 1
+# repo_url = "Futaba-Kosuke/test"
+# issue_num = 1
 
-g = github_issue.Issue(GITHUB_ACCESS_TOKEN)
+# g = github_issue.Issue(GITHUB_ACCESS_TOKEN)
 
-def get_issue_list():
-    result = [
-        {
-            "text": {
-                "type": "plain_text",
-                "text": '#' + str(i.number) + ' ' + str(i.title),
-                "emoji": True
-            },
-            "value": str(i.number)
-	    } for i in g.get_open_list(repo_url)
-    ]
-    result.reverse()
-    return result
-
-#print(get_issue_list())
+# def get_issue_list():
+#     result = [
+#         {
+#             "text": {
+#                 "type": "plain_text",
+#                 "text": '#' + str(i.number) + ' ' + str(i.title),
+#                 "emoji": True
+#             },
+#             "value": str(i.number)
+# 	    } for i in g.get_open_list(repo_url)
+#     ]
+#     result.reverse()
+#     return result
 
 OPEN_MODAL_BUTTONS = [
     {
@@ -49,15 +46,15 @@ OPEN_MODAL_BUTTONS = [
                 },
                 "value": "Add Issue"
             },
-            {
-                "type": "button",
-                "text": {
-                    "type": "plain_text",
-                    "text": "Assign User",
-                    "emoji": True
-                },
-                "value": "Assign User"
-            },
+            # {
+            #     "type": "button",
+            #     "text": {
+            #         "type": "plain_text",
+            #         "text": "Assign User",
+            #         "emoji": True
+            #     },
+            #     "value": "Assign User"
+            # },
             {
                 "type": "button",
                 "text": {
@@ -280,7 +277,7 @@ ASSIGN_USER_MODAL = {
 					"text": "Select options",
 					"emoji": True
 				},
-				"options": get_issue_list()
+				"options": []
 			},
 			"label": {
 				"type": "plain_text",
@@ -339,7 +336,7 @@ CLOSE_ISSUE_MODAL = {
 					"text": "Select options",
 					"emoji": True
 				},
-				"options": get_issue_list()
+				"options": []
 			},
 			"label": {
 				"type": "plain_text",
@@ -351,7 +348,7 @@ CLOSE_ISSUE_MODAL = {
 }
 CONNECT_GITHUB_USER_MODAL = {
 	"type": "modal",
-        "callback_id": "CONNECT_GITHUB_USER",
+    "callback_id": "CONNECT_GITHUB_USER",
 	"title": {
 		"type": "plain_text",
 		"text": "CONNECT_GITHUB_USER",

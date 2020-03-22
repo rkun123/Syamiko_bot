@@ -2,26 +2,28 @@ from github import Github
 from dotenv import load_dotenv
 import os
 from os.path import join, dirname
+import time
 
 class Issue:
     def __init__(self, token):
         self.token = token
         
     def get_issue(self,repo_url,issue_num):
-
+        print('get_issue')
         g = Github(self.token)
         repo = g.get_repo(repo_url)
         issue = None
 
         for _issue in repo.get_issues(state="all"):
-            if _issue.number == issue_num:
+            if int(_issue.number) == int(issue_num):
                 issue = _issue
 
-        if issue == None:
+        if issue is None:
             print("該当するIssue番号は存在しません。")
         return issue
 
     def create_issue(self,repo_url,title,body,assignees=None):
+        print('create_issue')
         print(repo_url, title, body, assignees)
         g = Github(self.token)
         repo = g.get_repo(repo_url)
@@ -29,7 +31,7 @@ class Issue:
 
         new_issue = repo.create_issue(title,body)
 
-        time.sleep(10)
+        # time.sleep(10)
 
         if assignees:
             for assignee in assignees:
@@ -38,6 +40,7 @@ class Issue:
 
         return new_issue
     def get_open_list(self, repo_url):
+        print('get_open_list')
         g = Github(self.token)
         repo = g.get_repo(repo_url)
         open_issues = repo.get_issues(state='open')
@@ -45,10 +48,11 @@ class Issue:
         return open_issues
 
     def close_issue(self,repo_url,issue_num):
+        print('close_issue')
         g = Github(self.token)
-        repo = g.get_repo(repo_url)
+        repo = g.get_repo(repo_url[1:])
         open_issues = repo.get_issues(state='open')
-        close_issue = self.get_issue(repo_url, issue_num)
+        close_issue = self.get_issue(repo_url[1:], issue_num)
 
         if close_issue and close_issue in open_issues:
             close_issue.edit(state='closed')
@@ -59,6 +63,7 @@ class Issue:
         return close_issue
 
     def get_commit_info(self, repo_url, issue_num):
+        print('get_commit_info')
         g = Github(self.token)
         repo = g.get_repo(repo_url)
         issue = self.get_issue(repo_url, issue_num)
