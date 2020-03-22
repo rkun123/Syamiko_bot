@@ -42,7 +42,10 @@ if __name__ == "__main__":
         """
         repo = firebase.get_repo(team_id)
         print(repo)
-        issue_num = github.create_issue(repo, title, description, selected_users).number
+        print(selected_users)
+        github_users = [firebase.get_user(team_id, i)["github_user_id"] for i in selected_users]
+        print(github_users)
+        issue_num = github.create_issue("YuichirouSeitoku/TestRepository", title, description, github_users).number
         firebase.add_issue(team_id, issue_num, title, description, limited_time, selected_users)
 
         return ('', 204)

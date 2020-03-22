@@ -22,11 +22,14 @@ class Issue:
         return issue
 
     def create_issue(self,repo_url,title,body,assignees=None):
+        print(repo_url, title, body, assignees)
         g = Github(self.token)
         repo = g.get_repo(repo_url)
         new_issue = None
 
         new_issue = repo.create_issue(title,body)
+
+        time.sleep(10)
 
         if assignees:
             for assignee in assignees:
@@ -98,8 +101,10 @@ if __name__ == "__main__":
     assignees = ["YuichirouSeitoku","rkun123","Futaba-Kosuke"]
     assignees = ["YuichirouSeitoku"]
 
-    # g.create_issue(repo_url,title,body,assignees)
-    # g.close_issue(repo_url,issue_num)
+    print(repo_url, title, body, assignees)
+
+    g.create_issue(repo_url,title,body,assignees)
+    g.close_issue(repo_url,issue_num)
     commit_info = g.get_commit_info(repo_url,issue_num)
 
     print(commit_info)

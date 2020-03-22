@@ -6,7 +6,7 @@ from os.path import join, dirname
 
 GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
 
-repo_url = "YuichirouSeitoku/TestRepository"
+repo_url = "Futaba-Kosuke/test"
 issue_num = 1
 
 g = github_issue.Issue(GITHUB_ACCESS_TOKEN)
