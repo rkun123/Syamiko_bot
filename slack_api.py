@@ -77,6 +77,12 @@ class Slack:
             view=slack_ui.CLOSE_ISSUE_MODAL
         )
 
+    def show_connect_github_user_modal(self, trigger_id):
+        self.client.views_open(
+            trigger_id=trigger_id,
+            view=slack_ui.CONNECT_GITHUB_USER_MODAL
+        )
+
     def app_mention(self, event):
         """
         @syamikoされた際に呼ばれるイベントハンドラメソッド
@@ -107,6 +113,8 @@ class Slack:
                 self.show_assign_user_modal(req["trigger_id"])
             elif mode == "Close Issue":
                 self.show_close_issue_modal(req["trigger_id"])
+            elif mode == "GithubUser Connect":
+                self.show_connect_github_user_modal(req["trigger_id"])
         elif req["type"] == "view_submission":
 
             callback_id = req["view"]["callback_id"]
@@ -137,6 +145,12 @@ class Slack:
                 issue_num = req["view"]["state"]["values"]["issue_block"]["issue"]["selected_option"]["value"]
                 print(team_id, issue_num)
                 return self.close_issue_callback(team_id=team_id, issue_num=issue_num)
+            elif callback_id == "CONNECT_GITHUB_USER":
+                print(req)
+                team_id = req["view"]["team_id"]
+                slack_user = req["user"]["id"]
+                github_user = req["view"]["state"]["values"]["connect_github_block"]["connect_github_action"]["value"]
+                return self.connect_github_callback(team_id, slack_user, github_user)
 
             # team_id = req["view"]["team_id"]
             # values = req["view"]["state"]["values"]
@@ -162,6 +176,9 @@ class Slack:
 
     def setCloseIssueCallback(self, closeIssue):
         self.close_issue_callback = closeIssue
+
+    def setConnectGithubCallback(self, connectGithub):
+        self.connect_github_callback = connectGithub
 
     def run(self):
         """

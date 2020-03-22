@@ -25,7 +25,7 @@ def get_issue_list():
     result.reverse()
     return result
 
-print(get_issue_list())
+#print(get_issue_list())
 
 OPEN_MODAL_BUTTONS = [
     {
@@ -66,6 +66,15 @@ OPEN_MODAL_BUTTONS = [
                     "emoji": True
                 },
                 "value": "Close Issue"
+            },
+            {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "GithubUserConnect",
+                    "emoji": True
+                },
+                "value": "GithubUser Connect"
             }
         ]
     }
@@ -339,4 +348,38 @@ CLOSE_ISSUE_MODAL = {
 			}
 		}
 	]
+}
+CONNECT_GITHUB_USER_MODAL = {
+	"type": "modal",
+        "callback_id": "CONNECT_GITHUB_USER",
+	"title": {
+		"type": "plain_text",
+		"text": "CONNECT_GITHUB_USER",
+		"emoji": True
+	},
+	"submit": {
+		"type": "plain_text",
+		"text": "Submit",
+		"emoji": True
+	},
+	"close": {
+		"type": "plain_text",
+		"text": "Cancel",
+		"emoji": True
+	},
+	"blocks": [
+            {
+                "type": "input",
+                "block_id": "connect_github_block",
+                "element": {
+                    "type": "plain_text_input",
+                    "action_id": "connect_github_action"
+                    },
+                "label": {
+                    "type": "plain_text",
+                    "text": "Label",
+                    "emoji": True
+                    }
+                }
+            ]
 }

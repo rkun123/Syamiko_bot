@@ -42,9 +42,10 @@ if __name__ == "__main__":
         """
         repo = firebase.get_repo(team_id)
         print(repo)
-        github.create_issue(repo, title, description, selected_users)
+        issue_num = github.create_issue(repo, title, description, selected_users).number
+        firebase.add_issue(team_id, issue_num, title, description, limited_time, selected_users)
 
-        return "OK", 200
+        return ('', 204)
 
     slack.setAddIssueCallback(add_issue)
 
@@ -54,7 +55,7 @@ if __name__ == "__main__":
         """
         firebase.add_channel(team_id, repo)
         
-        return None, 200
+        return ('', 204)
 
     slack.setAddChannelCallback(add_channel)
 
@@ -65,8 +66,15 @@ if __name__ == "__main__":
         repo = firebase.get_repo(team_id)
         github.get_issue(repo, issue_num).add_to_assignees(assignee)
         firebase.assign_user(team_id, assignee, issue_num)
+        return ('', 200)
 
     slack.setAssignUserCallback(assign_user)
+
+    def connect_github(team_id, slack_user, github_user):
+        firebase.add_user(team_id, slack_user, github_user)
+        return ('', 200)
+
+    slack.setConnectGithubCallback(connect_github)
 
     def close_issue(team_id, issue_num):
         """
@@ -74,6 +82,7 @@ if __name__ == "__main__":
         """
         repo = firebase.get_repo(team_id)
         github.close_issue(repo, issue_num)
+        return "OK", 200
         
 
     slack.setAssignUserCallback(close_issue)
