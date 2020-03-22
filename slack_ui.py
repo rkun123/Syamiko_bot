@@ -4,12 +4,14 @@ from dotenv import load_dotenv
 import os
 from os.path import join, dirname
 
+GITHUB_CLIENT_ID = os.environ.get("GITHUB_CLIENT_ID")
+GITHUB_CLIENT_SECRET = os.environ.get("GITHUB_CLIENT_SECRET")
 GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
 
 repo_url = "YuichirouSeitoku/TestRepository"
 issue_num = 1
 
-g = github_issue.Issue(GITHUB_ACCESS_TOKEN)
+g = github_issue.Issue(GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_ACCESS_TOKEN)
 
 def get_issue_list():
     result = [
