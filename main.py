@@ -47,13 +47,18 @@ if __name__ == "__main__":
         None
     )
 
+    slack.setGithub(github)
+
     def add_issue(team_id, title, description, limited_time, selected_users):
         """
         Issue追加
         """
         repo = firebase.get_repo(team_id)
         print(repo)
-        issue_num = github.create_issue(repo, title, description, selected_users).number
+        print(selected_users)
+        github_users = [firebase.get_user(team_id, i)["github_user_id"] for i in selected_users]
+        print(github_users)
+        issue_num = github.create_issue("Futaba-Kosuke/test", title, description, github_users).number
         firebase.add_issue(team_id, issue_num, title, description, limited_time, selected_users)
 
         # Issue追加時からタイマースタート
@@ -81,8 +86,12 @@ if __name__ == "__main__":
         """
         ユーザーアサイン
         """
+        github_users = [firebase.get_user(team_id, i)["github_user_id"] for i in assignee]
+        print(github_users)
         repo = firebase.get_repo(team_id)
-        github.get_issue(repo, issue_num).add_to_assignees(assignee)
+        print(repo, issue_num)
+        for i in github_users:
+            github.get_issue(repo, issue_num).add_to_assignees(i)
         firebase.assign_user(team_id, assignee, issue_num)
         return ('', 200)
 
@@ -100,10 +109,11 @@ if __name__ == "__main__":
         """
         repo = firebase.get_repo(team_id)
         github.close_issue(repo, issue_num)
+        firebase.close_issue(team_id, issue_num)
         return "OK", 200
         
 
-    slack.setAssignUserCallback(close_issue)
+    slack.setCloseIssueCallback(close_issue)
 
 
     def expired(timer):
